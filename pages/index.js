@@ -5,7 +5,7 @@ export default function Home({ properties }) {
 
   console.log(properties);
 
-  var path = properties.slice(17);
+  var path = "https://g2layer-4sknz.ondigitalocean.app/" + properties;
 
   console.log(path);
 
@@ -28,6 +28,8 @@ export default function Home({ properties }) {
 export async function getServerSideProps() {
   const { db } = await connectToDatabase();
 
+  const results = await fetch ('https://g2layer-4sknz.ondigitalocean.app/api/staticoverlay');
+
   const streamers = await db.collection('streamers').find({}).toArray();
   const staticOverlays = await db.collection('staticoverlays').find({}).toArray();
   const staticArts = await db.collection('staticarts').find({}).toArray();
@@ -35,7 +37,7 @@ export async function getServerSideProps() {
   var file = "";
 
   for (const staticOverlay of staticOverlays) {
-    if (staticOverlay.on.streamer == "Test1") {
+    if (staticOverlay.on.streamer == "RRocha21") {
       for (const staticArt of staticArts) {
         for (const staticOverlay_art of staticOverlay.on.art) {
           if (staticArt.ArtName == staticOverlay_art) {
