@@ -24,7 +24,6 @@ export default function Home({properties, display_final, campaigns_to_show, camp
             if (campaigns_to_show != undefined) {
               if (currentSecond < 30) {
                 if (!active) {
-                  console.log("nao entrou");
                   var index = campaigns_to_show[Math.floor(Math.random() * campaigns_to_show.length)];
                   setCount(count => index);
                   campaigns_to_show.splice(campaigns_to_show.indexOf(index), 1);
@@ -37,8 +36,6 @@ export default function Home({properties, display_final, campaigns_to_show, camp
             setOpacity(0);
             setActive(active => false);
           }
-        } else {
-          console.log("po crl pt2");
         }
         if (currentDate == 59 && currentSecond >= 50) {
           campaigns_to_show = campaigns_saved.slice(0);

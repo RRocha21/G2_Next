@@ -2,6 +2,7 @@ import Head from 'next/head'
 import { connectToDatabase } from '../../util/mongodb'
 import styled from 'styled-components'
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
 
 export default function Home({properties, sponsor_props, overlay_props}) {
 
@@ -16,6 +17,7 @@ export default function Home({properties, sponsor_props, overlay_props}) {
   var start_left = 0;
 
   var new_sponsor_props = [];
+  var slide_sponsor_props = [];
 
   if (sponsor_props != undefined) {
     sponsor_props = [...sponsor_props].sort((a, b) => parseFloat(a.order) - parseFloat(b.order));
@@ -24,83 +26,141 @@ export default function Home({properties, sponsor_props, overlay_props}) {
       height = overlay_props.sponsor_container.size.height;
       left = overlay_props.sponsor_container.position.left;
       top = overlay_props.sponsor_container.position.top;
-      sponsor_sizes = (overlay_props.sponsor_container.size.width / sponsor_props.length) - 10;
-      sponsor_sizes = sponsor_sizes.toString();
-      console.log(sponsor_sizes);
-    }
-    for (var i = 0; i < sponsor_props.length; i++) {
-      var file_black_path = sponsor_props[i].file.black.path;
-      var file_white_path = sponsor_props[i].file.white.path;
-      if (i == 0) {
-        start_left = 0;
+      
+      if(overlay_props.sponsor_container.slideshow.status == false) {
+        sponsor_sizes = (overlay_props.sponsor_container.size.width / sponsor_props.length) - 10;
+        sponsor_sizes = sponsor_sizes.toString();
+        for (var i = 0; i < sponsor_props.length; i++) {
+          if (i == 0) {
+            start_left = 0;
+          } else {
+            start_left = start_left + parseInt(sponsor_sizes);
+          }
+          if (overlay_props.sponsor_container.color) {
+            for (var j = 10000; j>0; j--) {
+              var value = j / 10000;
+              if (sponsor_props[i].file.white.size.width * value < parseInt(sponsor_sizes)) {
+                if (sponsor_props[i].file.white.size.height * value <= height) {
+                  var file_path = sponsor_props[i].file.white.path;
+                  var file_size_width = value * sponsor_props[i].file.white.size.width;
+                  var file_size_height = value * sponsor_props[i].file.white.size.height;
+                  break;
+                }
+              }
+            }
+          } else {
+            for (var j = 10000; j>0; j--) {
+              var value = j / 10000;
+              if (sponsor_props[i].file.black.size.width * value < parseInt(sponsor_sizes)) {
+                if (sponsor_props[i].file.black.size.height * value <= height) {
+                  var file_path = sponsor_props[i].file.black.path;
+                  var file_size_width = value * sponsor_props[i].file.black.size.width;
+                  var file_size_height = value * sponsor_props[i].file.black.size.height;
+                  break;
+                }
+              }
+            }
+          }
+            var new_set = {
+            file: {
+              path: file_path,
+              size: {
+                width: file_size_width,
+                height: file_size_height,
+                top: (height - file_size_height) / 2,
+              }
+            },
+            order: sponsor_props[i].order,
+            css: {
+              left: start_left,
+              top: top,
+              zindex: 500
+            }
+          }
+          new_sponsor_props.push(new_set);
+        }
+        var total_width = 0;
+        for (var i = 0; i < new_sponsor_props.length; i++) {
+          total_width += new_sponsor_props[i].file.size.width;
+        }
+        var setWidth = (((width) - total_width) / 2 ) - (10 * (new_sponsor_props.length -1))/2;
+        for (var i = 0; i < new_sponsor_props.length; i++) {
+          new_sponsor_props[i].css.left = setWidth;
+          setWidth += new_sponsor_props[i].file.size.width + 10;
+        }
       } else {
-        start_left = start_left + parseInt(sponsor_sizes);
-      }
-      for (var j = 10000; j>0; j--) {
-        var value = j / 10000;
-        if (sponsor_props[i].file.black.size.width * value < parseInt(sponsor_sizes)) {
-          if (sponsor_props[i].file.black.size.height * value <= height) {
-            var file_black_size_width = value * sponsor_props[i].file.black.size.width;
-            var file_black_size_height = value * sponsor_props[i].file.black.size.height;
-            break;
+        sponsor_sizes = overlay_props.sponsor_container.size.width - 20;
+        sponsor_sizes = sponsor_sizes.toString();
+        for (var i = 0; i < sponsor_props.length; i++) {
+          if (i == 0) {
+            start_left = 0;
+          } else {
+            start_left = start_left + parseInt(sponsor_sizes);
           }
-        }
-      }
-      for (var j = 10000; j>0; j--) {
-        var value = j / 10000;
-        if (sponsor_props[i].file.white.size.width * value < parseInt(sponsor_sizes)) {
-          if (sponsor_props[i].file.white.size.height * value <= height) {
-            var file_white_size_width = value * sponsor_props[i].file.white.size.width;
-            var file_white_size_height = value * sponsor_props[i].file.white.size.height;
-            break;
-          }
-        }
-      }
-        var new_set = {
-        file: {
-          black: {
-            path: file_black_path,
-            size: {
-              width: file_black_size_width,
-              height: file_black_size_height,
-              top: (height - file_black_size_height) / 2,
+          if (overlay_props.sponsor_container.color) {
+            for (var j = 10000; j>0; j--) {
+              var value = j / 10000;
+              if (sponsor_props[i].file.white.size.width * value < parseInt(sponsor_sizes)) {
+                if (sponsor_props[i].file.white.size.height * value <= height) {
+                  var file_path = sponsor_props[i].file.white.path;
+                  var file_size_width = value * sponsor_props[i].file.white.size.width;
+                  var file_size_height = value * sponsor_props[i].file.white.size.height;
+                  break;
+                }
+              }
             }
-          },
-          white: {
-            path: file_white_path,
-            size: {
-              width: file_white_size_width,
-              height: file_white_size_height,
-              top: (height - file_white_size_height) / 2,
+          } else {
+            for (var j = 10000; j>0; j--) {
+              var value = j / 10000;
+              if (sponsor_props[i].file.black.size.width * value < parseInt(sponsor_sizes)) {
+                if (sponsor_props[i].file.black.size.height * value <= height) {
+                  var file_path = sponsor_props[i].file.black.path;
+                  var file_size_width = value * sponsor_props[i].file.black.size.width;
+                  var file_size_height = value * sponsor_props[i].file.black.size.height;
+                  break;
+                }
+              }
             }
           }
-        },
-        order: sponsor_props[i].order,
-        css: {
-          left: start_left,
-          top: top,
-          zindex: 500
+            var new_set = {
+            file: {
+              path: file_path,
+              size: {
+                width: file_size_width,
+                height: file_size_height,
+                top: (height - file_size_height) / 2,
+              }
+            },
+            order: sponsor_props[i].order,
+            css: {
+              left: start_left,
+              top: top,
+              zindex: 500
+            }
+          }
+          slide_sponsor_props.push(new_set);
         }
+        var total_width = 0;
+
+
+        var setWidth = width;
+
+        const [count, setCount] = useState(0);
+        useEffect(() => {
+          const interval = setInterval(() => {
+            setCount(count => count + 1);
+            if (count >= slide_sponsor_props.length -1 ) {
+              setCount(0);
+            }
+          }, 10000);
+          return () => clearInterval(interval);
+        }, [count]);
+        new_sponsor_props = [];
+        new_sponsor_props.push(slide_sponsor_props[count]);
+        new_sponsor_props[0].css.left = (width - new_sponsor_props[0].file.size.width) / 2;
       }
-      // console.log(start_left);
-      new_sponsor_props.push(new_set);
-    }
+    } 
   }
-
-  if (new_sponsor_props != undefined) {
-    var total_width = 0;
-    for (var i = 0; i < new_sponsor_props.length; i++) {
-      total_width += new_sponsor_props[i].file.white.size.width;
-    }
-    console.log(total_width)
-    var setWidth = (((width) - total_width) / 2 ) - (10 * (new_sponsor_props.length -1))/2;
-    console.log(setWidth);
-    for (var i = 0; i < new_sponsor_props.length; i++) {
-      new_sponsor_props[i].css.left = setWidth;
-      setWidth += new_sponsor_props[i].file.white.size.width + 10;
-    }
-  }
-
 
   if (properties != undefined) {
     return (
@@ -113,8 +173,8 @@ export default function Home({properties, sponsor_props, overlay_props}) {
         <div>
           <div style={{position: "absolute", left: left + "px", top: top + "px", width: width + "px", height: height + "px", background: "#FFA07A", zIndex: "450"}}>
           {new_sponsor_props.map((new_sponsor_prop) => ( 
-              <div style={{position: "absolute", left: new_sponsor_prop.css.left + "px", top: "0px", width: new_sponsor_prop.file.white.size.width + "px", height: height + "px"}}>
-                <img src= {"https://g2layer-4sknz.ondigitalocean.app/" + new_sponsor_prop.file.white.path} style={{ alignSelf: "center", position: "absolute", left: "0px", top: new_sponsor_prop.file.white.size.top + "px", width: new_sponsor_prop.file.white.size.width + "px", height: new_sponsor_prop.file.white.size.height + "px", zIndex:"500"}}/>
+              <div style={{position: "absolute", left: new_sponsor_prop.css.left + "px", top: "0px", width: new_sponsor_prop.file.size.width + "px", height: height + "px"}}>
+                <img src= {"https://g2layer-4sknz.ondigitalocean.app/" + new_sponsor_prop.file.path} style={{ alignSelf: "center", position: "absolute", left: "0px", top: new_sponsor_prop.file.size.top + "px", width: new_sponsor_prop.file.size.width + "px", height: new_sponsor_prop.file.size.height + "px", zIndex:"500"}}/>
               </div>
           ))}
           </div>
@@ -191,7 +251,6 @@ export async function getStaticProps({ params }) {
       }
     }
 
-    // console.log(file);
     const overlay_props = JSON.parse(JSON.stringify(overlay_array));
     const sponsor_props = JSON.parse(JSON.stringify(sponsor_array));
     const properties = JSON.parse(JSON.stringify(file));
