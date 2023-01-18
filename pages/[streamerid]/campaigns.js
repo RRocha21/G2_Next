@@ -56,8 +56,6 @@ export default function Home({properties, display_final, campaigns_to_show, camp
       } else {
         var filepath = properties[count].file.path;
       }
-      console.log(count);
-      console.log(opacity);
 
     } else {
       var left = 0;
