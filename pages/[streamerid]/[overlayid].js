@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import socketIOClient from 'socket.io-client';
 
-const socket = socketIOClient('https://g2-socket-gg9jb.ondigitalocean.app/');
+const socket = socketIOClient('http://localhost:3002');
 
 export default function Home({arts_props, sponsor_props, group_props, overlay_props, streamerId, overlayId}) {
   const [count, setCount] = useState(0);
@@ -14,6 +14,9 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
   const [sponsors, setSponsors] = useState(sponsor_props);
   const [groups, setGroups] = useState(group_props);
   const [firstLoad , setfirstLoad] = useState(false);
+
+  console.log(overlay_props);
+  console.log(arts_props);
 
   socket.connect();
   useEffect(() => {
@@ -30,17 +33,20 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
 
 
   useEffect(() => {
-      socket.on('changeOverlay', (data) => {
+      socket.on('Overlays_changeOverlay', (data) => {
         let data1 = data.result;
         let data2 = data.result2;
+
         let new_staticArts_array = [];
         for (var i = 0; i < data1.length; i++) {
-          if (data1[i].OverlayName == overlayId) {
-            setStaticOverlays(data1[i]);
-            for (var j = 0; j < data2.length; j++) {
-              for (var z = 0; z < data1[i].on.art.length; z++) {
-                if (data2[j].ArtName == data1[i].on.art[z]) {
-                  new_staticArts_array.push(data2[j]);
+          if (data1[i].on.streamer.includes(streamerId)) {
+            if (data1[i].OverlayName == overlayId) {
+              setStaticOverlays(data1[i]);
+              for (var j = 0; j < data2.length; j++) {
+                for (var z = 0; z < data1[i].on.art.length; z++) {
+                  if (data2[j].ArtName == data1[i].on.art[z]) {
+                    new_staticArts_array.push(data2[j]);
+                  }
                 }
               }
             }
@@ -49,7 +55,7 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
         setStaticArts(new_staticArts_array);
       });
 
-      socket.on('changeStreamer', (data) => {
+      socket.on('Overlays_changeStreamer', (data) => {
         let data1 = data.result;
         let data2 = data.result2;
         let data3 = data.result3;
@@ -72,6 +78,25 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
           }
         }
         setSponsors(new_sponsors_array);
+      });
+
+      socket.on('Overlays_changeStaticArt', (data) => {
+        let data1 = data.result;
+        let data2 = data.result2;
+
+        let new_staticArts_array = [];
+        for (var i = 0; i < data1.length; i++) {
+          if (data1[i].OverlayName == overlayId) {
+            for (var z = 0; z < data1[i].on.art.length; z++) {
+              for (var j = 0; j < data2.length; j++) {
+                if (data2[j].ArtName == data1[i].on.art[z]) {
+                  new_staticArts_array.push(data2[j]);
+                }
+              }
+            }
+          }
+        }
+        setStaticArts(new_staticArts_array);
       });
 
   }, [overlayId, streamerId, staticOverlays, staticArts, sponsors, groups]);
@@ -217,9 +242,9 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
 
         var setWidth = width;
 
-        new_sponsor_props = [];
-        new_sponsor_props.push(slide_sponsor_props[count]);
-        new_sponsor_props[0].css.left = (width - new_sponsor_props[0].file.size.width) / 2;
+        // new_sponsor_props = [];
+        // new_sponsor_props.push(slide_sponsor_props[count]);
+        // new_sponsor_props[0].css.left = (width - new_sponsor_props[0].file.size.width) / 2;
       }
     } 
   }
@@ -247,8 +272,8 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
-        <div>
-          <div style={{position: "absolute", left: left + "px", top: top + "px", width: width + "px", height: height + "px", background: "#FFA07A", zIndex: "450"}}>
+        <div key = "4">
+          <div style={{position: "absolute", left: left + "px", top: top + "px", width: width + "px", height: height + "px", background: "#FFA07A", zIndex: "450"}} key = "3">
           {new_sponsor_props.map((new_sponsor_prop) => ( 
               <div style={{position: "absolute", left: new_sponsor_prop.css.left + "px", top: "0px", width: new_sponsor_prop.file.size.width + "px", height: height + "px"}} key="1">
                 {new_sponsor_prop.file.path != undefined ? ( <img src= {"https://g2layer-4sknz.ondigitalocean.app/" + new_sponsor_prop.file.path} style={{ alignSelf: "center", position: "absolute", left: "0px", top: new_sponsor_prop.file.size.top + "px", width: new_sponsor_prop.file.size.width + "px", height: new_sponsor_prop.file.size.height + "px", zIndex:"500"} } /> ) : null }

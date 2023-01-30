@@ -17,7 +17,7 @@ app.use(Cors());
 
 
 
-app.listen(7500, async () => {
+app.listen(3000, async () => {
     try {
         const {db} = await connectToDatabase();
         let staticOverlays = await db.collection('staticoverlays').find({}).toArray();
