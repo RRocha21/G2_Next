@@ -250,13 +250,13 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
         <div>
           <div style={{position: "absolute", left: left + "px", top: top + "px", width: width + "px", height: height + "px", background: "#FFA07A", zIndex: "450"}}>
           {new_sponsor_props.map((new_sponsor_prop) => ( 
-              <div style={{position: "absolute", left: new_sponsor_prop.css.left + "px", top: "0px", width: new_sponsor_prop.file.size.width + "px", height: height + "px"}}>
+              <div style={{position: "absolute", left: new_sponsor_prop.css.left + "px", top: "0px", width: new_sponsor_prop.file.size.width + "px", height: height + "px"}} key="1">
                 {new_sponsor_prop.file.path != undefined ? ( <img src= {"https://g2layer-4sknz.ondigitalocean.app/" + new_sponsor_prop.file.path} style={{ alignSelf: "center", position: "absolute", left: "0px", top: new_sponsor_prop.file.size.top + "px", width: new_sponsor_prop.file.size.width + "px", height: new_sponsor_prop.file.size.height + "px", zIndex:"500"} } /> ) : null }
               </div>
           ))}
           </div>
           {new_staticArts.map((property) => (
-            <div>
+            <div key="2">
               {property.file.type == "image" ? ( <img src = {"https://g2layer-4sknz.ondigitalocean.app/" + property.file.path} style={{position: "absolute", left: property.css.left + "px", top: property.css.top + "px", zIndex: property.css.zindex}}/> ) : null }
               {property.file.type == "video" ? ( <video src = {"https://g2layer-4sknz.ondigitalocean.app/" + property.file.path} style={{position: "absolute", left: property.css.left + "px", top: property.css.top + "px", zIndex: property.css.zindex }} autoPlay muted loop/> ) : null}
             </div>
