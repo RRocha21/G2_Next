@@ -13,6 +13,7 @@ export default function Home({initial_properties, initial_display_final, initial
     const [active, setActive] = useState(false);
     const [properties, setProperties] = useState(initial_properties);
     const [display_final, setDisplay] = useState(initial_display_final);
+    const [display_provi, setDisplayProvi] = useState(initial_display_final);
     const [campaigns_to_show, setCampaignsShow] = useState(initial_campaigns_to_show);
     const [campaigns_saved, setCampaignsSaved] = useState(initial_campaigns_saved);
     const [firstLoad , setfirstLoad] = useState(false);
@@ -28,6 +29,7 @@ export default function Home({initial_properties, initial_display_final, initial
           setDisplay(initial_display_final);
           setCampaignsShow(initial_campaigns_to_show);
           setCampaignsSaved(initial_campaigns_saved);
+          setDisplayProvi(initial_display_final);
           setfirstLoad(true);
         }
       }, 2500);
@@ -46,35 +48,152 @@ export default function Home({initial_properties, initial_display_final, initial
         let new_display_final = [];
         let new_campaigns_to_show = [];
         let new_campaigns_saved = [];
+        let new_display_times = [];
         
-
         if (properties !== undefined) {
+
           for (var i = 0; i < data1.length; i++) {
             new_properties.push(data1[i]);
             for (var k = 0; k < data1[i].properties.frequency; k++) {
               new_campaigns_saved.push(i);
             }
           }
+
+          let all_times = [];
+
+          for (var i = 0; i < 60; i++) {
+            all_times.push(i);
+          }
+
+          for (var i = 0; i < new_campaigns_saved.length; i++) {
+            let random_time = all_times[Math.floor(Math.random() * all_times.length)];
+            all_times.splice(all_times.indexOf(random_time), 1);
+            new_display_final.push(random_time);
+          }
+
+          new_display_final = new_display_final.sort(function(a, b){return a-b});
+
           if (new_properties.length > properties.length) {
+            
             let k = new_properties.length - 1;
-            for (var i = 0; k < data1[k].properties.frequency; i++) {
-              new_campaigns_to_show.push(k);
-            }
+
+            new_campaigns_to_show = campaigns_to_show;
+
             let timetoend = 60 - currentDate;
             let possible_time = [];
+
+            let new_frequency = Math.round(data1[k].properties.frequency * timetoend/ 60);
+
+            for (var i = 0; i < new_frequency; i++) {
+              new_campaigns_to_show.push(k);
+            }
+
+
             for (var i = 0; i < timetoend; i++) {
               possible_time.push(currentDate + i);
             }
+
+            for (var i = 0; i < possible_time.length; i++) {
+              if (display_final.includes(possible_time[i])) {
+                possible_time.splice(possible_time.indexOf(possible_time[i]), 1);
+              }
+            }
+            
             for (var i = 0; i < new_campaigns_to_show.length; i++) {
-              var random_time = possible_time[Math.floor(Math.random() * possible_time.length)];
+              let random_time = possible_time[Math.floor(Math.random() * possible_time.length)];
               possible_time.splice(possible_time.indexOf(random_time), 1);
               new_display_times.push(random_time);
             }
-            console.log(new_display_times);
-          } 
-          console.log(new_campaigns_to_show);
+            new_display_times = new_display_times.sort(function(a, b){return a-b});
+          } else if (new_properties.length < properties.length) {
+            console.log("remove campaign");
+
+            console.log(properties);
+            console.log(new_properties);
+            let index = 0;
+            for (var i = 0; i < properties.length; i++) {
+              if (new_properties[i].campaignName !== properties[i].campaignName) {
+                index = i;
+                console.log("index: " + index);
+                break;
+              }
+            }
+
+            new_campaigns_to_show = campaigns_to_show.slice(0);
+            let index_array = [];
+
+            for (var i = campaigns_to_show.length; i >= 0; i--) {
+              if (campaigns_to_show[i] == index) {
+                new_campaigns_to_show.splice(i, 1);
+              }
+            }
+
+            for (var i = 0; i < new_campaigns_to_show.length; i++) {
+              if (new_campaigns_to_show[i] > index) {
+                new_campaigns_to_show[i] = new_campaigns_to_show[i] - 1;
+              }
+            }
+
+            let timetoend = 60 - currentDate;
+            let possible_time = [];
+
+            for (var i = 0; i < timetoend; i++) {
+              possible_time.push(currentDate + i);
+            }
+            
+            for (var i = 0; i < new_campaigns_to_show.length; i++) {
+              let random_time = possible_time[Math.floor(Math.random() * possible_time.length)];
+              possible_time.splice(possible_time.indexOf(random_time), 1);
+              new_display_times.push(random_time);
+            }
+            new_display_times = new_display_times.sort(function(a, b){return a-b});
+          } else if (new_properties.length == properties.length) {
+            console.log("update campaign");
+
+            let index = [];
+
+            for (var i = 0; i < new_properties.length; i++) {              
+              index[i] = getOcorrence(campaigns_saved, i) - getOcorrence(campaigns_to_show, i);
+            }
+
+            new_campaigns_to_show = new_campaigns_saved.slice(0);
+            for (var j = 0; j < index.length; j++) {
+              for (var i = new_campaigns_to_show.length; i >= 0; i--) {
+                if (index[j] > 0) {
+                  if (new_campaigns_to_show[i] == j) {
+                    new_campaigns_to_show.splice(i, 1);
+                    index[j] = index[j] - 1;
+                  }
+                }
+              }
+            }
+
+            let timetoend = 60 - currentDate;
+            let possible_time = [];
+
+            for (var i = 0; i < timetoend; i++) {
+              possible_time.push(currentDate + i);
+            }
+
+            for (var i = 0; i < new_campaigns_to_show.length; i++) {
+              let random_time = possible_time[Math.floor(Math.random() * possible_time.length)];
+              possible_time.splice(possible_time.indexOf(random_time), 1);
+              new_display_times.push(random_time);
+            }
+            new_display_times = new_display_times.sort(function(a, b){return a-b});
+          }
+
+
+          console.log("new_campaigns_to_show: " + new_campaigns_to_show);
+          console.log("new_display_times: " + new_display_times);
+          console.log("new_display_final: " + new_display_final);
+          console.log("new_campaigns_saved: " + new_campaigns_saved);
+
           setProperties(new_properties);
           setCampaignsSaved(new_campaigns_saved);
+          setDisplay(new_display_times);
+          setDisplayProvi(new_display_final);
+          setCampaignsShow(new_campaigns_to_show);
         }
       });
 
@@ -94,7 +213,10 @@ export default function Home({initial_properties, initial_display_final, initial
             if (campaigns_to_show != undefined) {
               if (currentSecond < 30) {
                 if (!active) {
+                  // while(true){ 
                   var index = campaigns_to_show[Math.floor(Math.random() * campaigns_to_show.length)];
+                  //   if (index != count) break;
+                  // }
                   setCount(count => index);
                   campaigns_to_show.splice(campaigns_to_show.indexOf(index), 1);
                   setOpacity(1);
@@ -108,7 +230,8 @@ export default function Home({initial_properties, initial_display_final, initial
           }
         }
         if (currentDate == 59 && currentSecond >= 50) {
-          setCampaigns_to_show(campaigns_saved.slice(0));
+          setCampaignsShow(campaigns_saved.slice(0));
+          setDisplay(display_provi.slice(0));
         }
       }, 10000);
       return () => clearInterval(interval); 
@@ -216,4 +339,8 @@ export async function getStaticProps({ params }) {
         props: {initial_properties: properties, initial_display_final: display_final, initial_campaigns_to_show: campaigns_to_show, initial_campaigns_saved: campaigns_saved },
         revalidate: 1
     };
+}
+
+function getOcorrence(array, value) {
+    return array.filter((v) => (v === value)).length;
 }
