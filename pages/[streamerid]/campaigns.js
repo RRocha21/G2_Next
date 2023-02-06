@@ -18,6 +18,7 @@ export default function Home({initial_properties, initial_display_final, initial
     const [campaigns_to_show, setCampaignsShow] = useState(initial_campaigns_to_show);
     const [campaigns_saved, setCampaignsSaved] = useState(initial_campaigns_saved);
     const [firstLoad , setfirstLoad] = useState(false);
+    const [flag, setFlag] = useState(false);
 
 
     socket.connect();
@@ -36,6 +37,17 @@ export default function Home({initial_properties, initial_display_final, initial
     }, [initial_properties, initial_display_final, initial_campaigns_to_show, initial_campaigns_saved, firstLoad]);
 
     useEffect(() => {
+      socket.on('Triggers_changeTrigger', (data) => {
+        var currentSecond = parseInt(Date(Date.now()).toString().split(" ")[4].split(":")[2]);
+        if (data.css.duration + currentSecond >= 60) {
+          setEndtimer(endtimer => data.css.duration + currentSecond - 60)
+        } else {
+          setEndtimer(endtimer => data.css.duration + currentSecond);
+        }
+        setOpacity(opacity => 0);
+        setActive(active => true);
+      });
+
       socket.on('Campaigns_changeCampaign', (data) => {
         var currentDate = parseInt(Date(Date.now()).toString().split(" ")[4].split(":")[1]);
 
@@ -294,9 +306,19 @@ export default function Home({initial_properties, initial_display_final, initial
         var currentDate = parseInt(Date(Date.now()).toString().split(" ")[4].split(":")[1]);
 
         console.log("currentSecond: " + currentSecond + " endtimer: " + endtimer);
-        if (currentSecond >= endtimer) {
-          setOpacity(0);
-          setActive(active => false);
+        if (!flag) {
+          if (currentSecond >= endtimer) {
+            setOpacity(0);
+            setActive(active => false);
+          }
+        } else {
+          if (currentSecond < 40) {
+            if (currentSecond >= endtimer) {
+              setOpacity(0);
+              setActive(active => false);
+              setFlag(flag => false);
+            }
+          }
         }
         if (display_final != undefined) {
           if (display_final.includes(currentDate)) {
@@ -308,7 +330,11 @@ export default function Home({initial_properties, initial_display_final, initial
                   //   if (index != count) break;
                   // }
                   setCount(count => index);
-                  setEndtimer(endtimer => currentSecond + properties[index].css.duration);
+                  if (properties[index].css.duration !== undefined) {
+                    setEndtimer(endtimer => currentSecond + properties[index].css.duration);
+                  } else {
+                    setEndtimer(endtimer => 30);
+                  }
                   campaigns_to_show.splice(campaigns_to_show.indexOf(index), 1);
                   setOpacity(1);
                   setActive(active => true);
@@ -326,7 +352,7 @@ export default function Home({initial_properties, initial_display_final, initial
         }
       }, 5000);
       return () => clearInterval(interval); 
-    }, [display_final, campaigns_to_show, active, count, campaigns_saved, opacity,properties]);
+    }, [display_final, campaigns_to_show, active, count, campaigns_saved, opacity,properties, flag]);
 
   if (properties != undefined) {
     if (properties[count] == undefined) {
