@@ -38,21 +38,27 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
         let data2 = data.result2;
 
         let new_staticArts_array = [];
-        for (var i = 0; i < data1.length; i++) {
-          if (data1[i].on.streamer.includes(streamerId)) {
-            if (data1[i].OverlayName == overlayId) {
-              setStaticOverlays(data1[i]);
-              for (var j = 0; j < data2.length; j++) {
-                for (var z = 0; z < data1[i].on.art.length; z++) {
-                  if (data2[j].ArtName == data1[i].on.art[z]) {
-                    new_staticArts_array.push(data2[j]);
+        if (data1 != undefined) {
+          for (var i = 0; i < data1.length; i++) {
+            if(data1[i].status) {
+              if (data1[i].on.streamer.includes(streamerId)) {
+                if (data1[i].OverlayName == overlayId) {
+                  setStaticOverlays(data1[i]);
+                  for (var j = 0; j < data2.length; j++) {
+                    for (var z = 0; z < data1[i].on.art.length; z++) {
+                      if (data2[j].ArtName == data1[i].on.art[z]) {
+                        if (data2[j].status) {
+                          new_staticArts_array.push(data2[j]);
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
           }
+          setStaticArts(new_staticArts_array);
         }
-        setStaticArts(new_staticArts_array);
       });
 
       socket.on('Overlays_changeStreamer', (data) => {
@@ -62,14 +68,20 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
 
         let new_sponsors_array = [];
         for (var i = 0; i < data1.length; i++) {
-          if (data1[i].twitch_id == streamerId) {
-            for (var j = 0; j < data2.length; j++) {
-              if (data2[j].name == data1[i].group) {
-                setGroups(data2[j]);
-                for (var z = 0; z < data2[j].sponsors.length; z++) {
-                  for (var x = 0; x < data3.length; x++) {
-                    if (data2[j].sponsors[z] == data3[x].name) {
-                      new_sponsors_array.push(data3[x]);
+          if(data1[i].status) {
+            if (data1[i].twitch_id == streamerId) {
+              for (var j = 0; j < data2.length; j++) {
+                if (data2[j].name == data1[i].group) {
+                  if (data2[j].status) {
+                    setGroups(data2[j]);
+                    for (var z = 0; z < data2[j].sponsors.length; z++) {
+                      for (var x = 0; x < data3.length; x++) {
+                        if (data2[j].sponsors[z] == data3[x].name) {
+                          if (data3[x].status) {
+                            new_sponsors_array.push(data3[x]);
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -78,6 +90,71 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
           }
         }
         setSponsors(new_sponsors_array);
+      });
+
+      socket.on('Overlays_changeSponsor', (data) => {
+        let data1 = data.result;
+        let data2 = data.result2;
+        let data3 = data.result3;
+
+        let new_sponsors_array = [];
+        for (var i = 0; i < data1.length; i++) {
+          if(data1[i].status) {
+            if (data1[i].twitch_id == streamerId) {
+              for (var j = 0; j < data2.length; j++) {
+                if (data2[j].name == data1[i].group) {
+                  if (data2[j].status) {
+                    setGroups(data2[j]);
+                    for (var z = 0; z < data2[j].sponsors.length; z++) {
+                      for (var x = 0; x < data3.length; x++) {
+                        if (data2[j].sponsors[z] == data3[x].name) {
+                          if (data3[x].status) {
+                            new_sponsors_array.push(data3[x]);
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        setSponsors(new_sponsors_array);
+      });
+
+      socket.on('Overlays_changeGroup', (data) => {
+        let data1 = data.result;
+        let data2 = data.result2;
+        let data3 = data.result3;
+
+        let new_sponsors_array = [];
+        console.log(data1);
+        if (data1 !== undefined) {
+          for (var i = 0; i < data1.length; i++) {
+            if(data1[i].status) {
+              if (data1[i].twitch_id == streamerId) {
+                for (var j = 0; j < data2.length; j++) {
+                  if (data2[j].name == data1[i].group) {
+                    if (data2[j].status) {
+                      setGroups(data2[j]);
+                      for (var z = 0; z < data2[j].sponsors.length; z++) {
+                        for (var x = 0; x < data3.length; x++) {
+                          if (data2[j].sponsors[z] == data3[x].name) {
+                            if (data3[x].status) {
+                              new_sponsors_array.push(data3[x]);
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          setSponsors(new_sponsors_array);
+        } 
       });
 
       socket.on('Overlays_changeStaticArt', (data) => {
@@ -90,7 +167,9 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
             for (var z = 0; z < data1[i].on.art.length; z++) {
               for (var j = 0; j < data2.length; j++) {
                 if (data2[j].ArtName == data1[i].on.art[z]) {
-                  new_staticArts_array.push(data2[j]);
+                  if (data2[j].status) {
+                    new_staticArts_array.push(data2[j]);
+                  }
                 }
               }
             }
@@ -185,6 +264,7 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
           new_sponsor_props[i].css.left = setWidth;
           setWidth += new_sponsor_props[i].file.size.width + 10;
         }
+        console.log(new_sponsor_props);
       } else {
         sponsor_sizes = staticOverlays.sponsor_container.size.width - 20;
         sponsor_sizes = sponsor_sizes.toString();
@@ -272,18 +352,18 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
-        <div key = "4">
+        <div>
           <div style={{position: "absolute", left: left + "px", top: top + "px", width: width + "px", height: height + "px", background: "#FFA07A", zIndex: "450"}} key = "3">
           {new_sponsor_props.map((new_sponsor_prop) => ( 
               <div style={{position: "absolute", left: new_sponsor_prop.css.left + "px", top: "0px", width: new_sponsor_prop.file.size.width + "px", height: height + "px"}} key="1">
-                {new_sponsor_prop.file.path != undefined ? ( <img src= {"https://g2layer-4sknz.ondigitalocean.app/" + new_sponsor_prop.file.path} style={{ alignSelf: "center", position: "absolute", left: "0px", top: new_sponsor_prop.file.size.top + "px", width: new_sponsor_prop.file.size.width + "px", height: new_sponsor_prop.file.size.height + "px", zIndex:"500"} } /> ) : null }
+                {new_sponsor_prop.file.path != undefined ? ( <img src= {"https://g2-layer.fra1.cdn.digitaloceanspaces.com/" + new_sponsor_prop.file.path} style={{ alignSelf: "center", position: "absolute", left: "0px", top: new_sponsor_prop.file.size.top + "px", width: new_sponsor_prop.file.size.width + "px", height: new_sponsor_prop.file.size.height + "px", zIndex:"500"} } /> ) : null }
               </div>
           ))}
           </div>
           {new_staticArts.map((property) => (
-            <div key="2">
-              {property.file.type == "image" ? ( <img src = {"https://g2layer-4sknz.ondigitalocean.app/" + property.file.path} style={{position: "absolute", left: property.css.left + "px", top: property.css.top + "px", zIndex: property.css.zindex}}/> ) : null }
-              {property.file.type == "video" ? ( <video src = {"https://g2layer-4sknz.ondigitalocean.app/" + property.file.path} style={{position: "absolute", left: property.css.left + "px", top: property.css.top + "px", zIndex: property.css.zindex }} autoPlay muted loop/> ) : null}
+            <div>
+              {property.file.type == "image" ? ( <img src = {"https://g2-layer.fra1.cdn.digitaloceanspaces.com/" + property.file.path} style={{position: "absolute", left: property.css.left + "px", top: property.css.top + "px", zIndex: property.css.zindex}}/> ) : null }
+              {property.file.type == "video" ? ( <video src = {"https://g2-layer.fra1.cdn.digitaloceanspaces.com/" + property.file.path} style={{position: "absolute", left: property.css.left + "px", top: property.css.top + "px", zIndex: property.css.zindex }} autoPlay muted loop/> ) : null}
             </div>
           ))}
           
@@ -314,14 +394,20 @@ export async function getStaticProps({ params }) {
     var group_array = [];
   
     for (const streamer of streamers) {
-      if (streamer.twitch_id == params.streamerid) {
-        for (const group of groups) {
-          if (streamer.group == group.name) {
-            group_array.push(group);
-            for (const sponsor of sponsors) {
-              for (const group_sponsor of group.sponsors) {
-                if (sponsor.name == group_sponsor) {
-                  sponsor_array.push(sponsor);
+      if (streamer.status) {
+        if (streamer.twitch_id == params.streamerid) {
+          for (const group of groups) {
+            if (streamer.group == group.name) {
+              if (group.status) {
+                group_array.push(group);           
+                for (const sponsor of sponsors) {
+                  for (const group_sponsor of group.sponsors) {
+                    if (sponsor.name == group_sponsor) {
+                      if (sponsor.status) {
+                        sponsor_array.push(sponsor);
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -330,20 +416,22 @@ export async function getStaticProps({ params }) {
       }
     }
 
-    console.log("test")
     for (const staticOverlay of staticOverlays) {
-      for (const staticOverlay_on_streamer of staticOverlay.on.streamer) {
-        if (staticOverlay_on_streamer == params.streamerid) {
-            if (staticOverlay.OverlayName == params.overlayid) {
-              for (const staticArt of staticArts) {
-                for (const staticOverlay_art of staticOverlay.on.art) {
-                  console.log(staticArt.ArtName + " " + staticOverlay_art)
-                  if (staticArt.ArtName == staticOverlay_art) {
-                    file.push(staticArt);
+      if (staticOverlay.status) {
+        for (const staticOverlay_on_streamer of staticOverlay.on.streamer) {
+          if (staticOverlay_on_streamer == params.streamerid) {
+              if (staticOverlay.OverlayName == params.overlayid) {
+                for (const staticArt of staticArts) {
+                  for (const staticOverlay_art of staticOverlay.on.art) {
+                    if (staticArt.ArtName == staticOverlay_art) {
+                      if (staticArt.status) {
+                        file.push(staticArt);
+                      }
+                    }
                   }
                 }
               }
-            }
+          }
         }
       }
     }
