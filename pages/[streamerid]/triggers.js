@@ -36,7 +36,6 @@ export default function Home({}) {
     const interval = setInterval(() => {
       var currentSecond = parseInt(Date(Date.now()).toString().split(" ")[4].split(":")[2]);
 
-      console.log("currentSecond: " + currentSecond + " endtimer: " + endtimer);
       if (!flag) {
         if (currentSecond >= endtimer) {
           setOpacity(0);
@@ -101,8 +100,6 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
     const { db } = await connectToDatabase();
-
-    // console.log(params
 
     return {
         props: { },

@@ -25,7 +25,6 @@ export default function Home({initial_properties, initial_display_final, initial
     useEffect(() => {
       setTimeout(() => {
         if (firstLoad == false) {
-          // console.log("passou");
           setProperties(initial_properties);
           setDisplay(initial_display_final);
           setCampaignsShow(initial_campaigns_to_show);
@@ -97,9 +96,6 @@ export default function Home({initial_properties, initial_display_final, initial
               let enddate_month = parseInt(enddate.split("-")[1]);
               let enddate_day = parseInt(enddate.split("-")[2]);
               let enddate_year = parseInt(enddate.split("-")[0]);
-
-              // console.log(startdate_month, startdate_day, startdate_year);
-              // console.log(enddate_month, enddate_day, enddate_year);
 
               if (startdate_year !== 2001 && enddate_year !== 2001) {
                 if (startdate_year <= year && enddate_year >= year) {
@@ -203,7 +199,6 @@ export default function Home({initial_properties, initial_display_final, initial
             new_display_times = new_display_times.sort(function(a, b){return a-b});
 
           } else if (new_properties.length < properties.length) {
-            // console.log("remove campaign");
 
             let index = 0;
 
@@ -246,7 +241,6 @@ export default function Home({initial_properties, initial_display_final, initial
             }
             new_display_times = new_display_times.sort(function(a, b){return a-b});
           } else if (new_properties.length == properties.length) {
-            // console.log("update campaign");
 
             let index = [];
 
@@ -305,7 +299,6 @@ export default function Home({initial_properties, initial_display_final, initial
         var currentSecond = parseInt(Date(Date.now()).toString().split(" ")[4].split(":")[2]);
         var currentDate = parseInt(Date(Date.now()).toString().split(" ")[4].split(":")[1]);
 
-        console.log("currentSecond: " + currentSecond + " endtimer: " + endtimer);
         if (!flag) {
           if (currentSecond >= endtimer) {
             setOpacity(0);
@@ -401,7 +394,6 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
     const { db } = await connectToDatabase();
 
-    // console.log(params)
     const data = await db.collection("streamers").find({twitch_id: params.streamerid}).toArray();
 
     const streamers = await db.collection('streamers').find({}).toArray();
@@ -472,8 +464,6 @@ export async function getStaticProps({ params }) {
         let enddate_day = parseInt(enddate.split(" ")[2]);
         let enddate_year = parseInt(enddate.split(" ")[3]);
 
-        // console.log(startdate_month, startdate_day, startdate_year);
-        // console.log(enddate_month, enddate_day, enddate_year);
 
         if (startdate_year !== 2001 && enddate_year !== 2001) {
           if (startdate_year <= year && enddate_year >= year) {
@@ -482,7 +472,6 @@ export async function getStaticProps({ params }) {
                 for (const Campaign_on_streamer of Campaign.on.streamer) {
                   if (Campaign_on_streamer == params.streamerid) {
                     file.push(Campaign);
-                    // console.log("pushed");
                   }
                 }
               }
@@ -492,16 +481,11 @@ export async function getStaticProps({ params }) {
           for (const Campaign_on_streamer of Campaign.on.streamer) {
             if (Campaign_on_streamer == params.streamerid) {
               file.push(Campaign);
-              // console.log("pushed");
             }
           }
         }
       }
     }
-
-    
-
-    // console.log(file);
 
     const properties = JSON.parse(JSON.stringify(file));
     const campaigns_to_show = [];

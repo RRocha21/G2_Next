@@ -15,9 +15,6 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
   const [groups, setGroups] = useState(group_props);
   const [firstLoad , setfirstLoad] = useState(false);
 
-  console.log(overlay_props);
-  console.log(arts_props);
-
   socket.connect();
   useEffect(() => {
     setTimeout(() => {
@@ -129,7 +126,6 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
         let data3 = data.result3;
 
         let new_sponsors_array = [];
-        console.log(data1);
         if (data1 !== undefined) {
           for (var i = 0; i < data1.length; i++) {
             if(data1[i].status) {
@@ -264,7 +260,7 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
           new_sponsor_props[i].css.left = setWidth;
           setWidth += new_sponsor_props[i].file.size.width + 10;
         }
-        console.log(new_sponsor_props);
+
       } else {
         sponsor_sizes = staticOverlays.sponsor_container.size.width - 20;
         sponsor_sizes = sponsor_sizes.toString();
@@ -337,7 +333,6 @@ export default function Home({arts_props, sponsor_props, group_props, overlay_pr
           if (count >= slide_sponsor_props.length -1 ) {
             setCount(0);
           }
-          console.log("terst1");
         }, 10000);
         return () => clearInterval(interval);
       }
